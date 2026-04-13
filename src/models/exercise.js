@@ -1,5 +1,6 @@
 export class ExerciseModel {
-	constructor(userId, description, duration, date) {
+	constructor(id, userId, description, duration, date) {
+		this.id = id;
 		this.userId = userId;
 		this.description = description;
 		this.duration = duration;

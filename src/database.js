@@ -1,7 +1,9 @@
 import { Database } from "sqlite-async";
 
+export let db;
+
 export async function setupDatabase() {
-	const db = await Database.open("./database.db");
+	db = await Database.open("./database.db");
 
 	await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
@@ -20,6 +22,14 @@ export async function setupDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     `);
+
+	return db;
+}
+
+export function getDatabase() {
+	if (!db) {
+		throw new Error("Database not initialized — call initDatabase() first");
+	}
 
 	return db;
 }

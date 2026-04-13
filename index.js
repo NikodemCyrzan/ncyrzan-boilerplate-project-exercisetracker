@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import express, { static as stc } from "express";
 import cors from "cors";
+import { setupDatabase } from "./src/database.js";
 import("dotenv/config.js");
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,15 +16,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(stc("public"));
 
-app.get("/", (req, res) => {
-	res.sendFile(__dirname + "/views/index.html");
-});
+(async () => {
+	await setupDatabase();
 
-app.post("/api/users", UserController.create);
-app.get("/api/users", UserController.getAll);
-app.post("/api/users/:_id/exercises", ExerciseController.add);
-app.get("/api/users/:_id/logs", ExerciseController.logs);
+	app.get("/", (req, res) => {
+		res.sendFile(__dirname + "/views/index.html");
+	});
 
-const listener = app.listen(process.env.PORT || 3000, () => {
-	console.log("App is listening on port " + listener.address().port);
-});
+	app.post("/api/users", UserController.create);
+	app.get("/api/users", UserController.getAll);
+	app.post("/api/users/:_id/exercises", ExerciseController.add);
+	app.get("/api/users/:_id/logs", ExerciseController.logs);
+
+	const listener = app.listen(process.env.PORT || 3000, () => {
+		console.log("App is listening on port " + listener.address().port);
+	});
+})();

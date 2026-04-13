@@ -1,19 +1,21 @@
+import { getDatabase } from "../database.js";
 import { ExerciseModel } from "../models/exercise.js";
 
 export const ExerciseRepository = {
-	async create(db, userId, description, duration, date) {
-		await db.run(
+	async create(userId, description, duration, date) {
+		const result = await getDatabase().run(
 			"INSERT INTO exercises (user_id, description, duration, date) VALUES (?, ?, ?, ?)",
 			userId,
 			description,
 			duration,
 			date,
 		);
-		return new ExerciseModel(userId, description, duration, date);
+		return new ExerciseModel(result.lastID, userId, description, duration, date);
 	},
 
-	async findByUserId(db, userId, { from, to, limit } = {}) {
-		let query = "SELECT id, description, duration, date FROM exercises WHERE user_id = ?";
+	async findByUserId(userId, { from, to, limit } = {}) {
+		let query =
+			"SELECT id, user_id, description, duration, date FROM exercises WHERE user_id = ?";
 		const params = [userId];
 
 		if (from) {
@@ -28,9 +30,9 @@ export const ExerciseRepository = {
 
 		query += " ORDER BY date ASC";
 
-		const allMatching = (await db.all(query, ...params)).map(
-			({ userId, description, duration, date }) =>
-				new ExerciseModel(userId, description, duration, date),
+		const allMatching = (await getDatabase().all(query, ...params)).map(
+			({ id, user_id, description, duration, date }) =>
+				new ExerciseModel(id, user_id, description, duration, date),
 		);
 
 		if (limit) {

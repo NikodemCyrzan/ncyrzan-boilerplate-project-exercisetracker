@@ -1,29 +1,29 @@
+import { getDatabase } from "../database.js";
 import { UserModel } from "../models/user.js";
 
 export const UserRepository = {
-	async findAll(db) {
-		const { id, username } = await db.all("SELECT id, username FROM users");
-		return new UserModel(id, username);
+	async findAll() {
+		const rows = await getDatabase().all("SELECT id, username FROM users");
+		return rows.map(({ id, username }) => new UserModel(id, username));
 	},
 
-	async findById(db, id) {
-		const { id: uid, username } = await db.get(
-			"SELECT id, username FROM users WHERE id = ?",
-			id,
-		);
-		return new UserModel(uid, username);
+	async findById(id) {
+		const row = await getDatabase().get("SELECT id, username FROM users WHERE id = ?", id);
+		if (!row) return null;
+		return new UserModel(row.id, row.username);
 	},
 
-	async findByUsername(db, username) {
-		const { id: resId, username: resUsername } = await db.get(
+	async findByUsername(username) {
+		const row = await getDatabase().get(
 			"SELECT id, username FROM users WHERE username = ?",
 			username,
 		);
-		return new UserModel(resId, resUsername);
+		if (!row) return null;
+		return new UserModel(row.id, row.username);
 	},
 
-	async create(db, username) {
-		const result = await db.run("INSERT INTO users (username) VALUES (?)", username);
+	async create(username) {
+		const result = await getDatabase().run("INSERT INTO users (username) VALUES (?)", username);
 		return new UserModel(result.lastID, username);
 	},
 };

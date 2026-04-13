@@ -1,22 +1,22 @@
 import { UserRepository } from "../repositories/user.js";
 
 export const UserService = {
-	async createUser(db, username) {
+	async createUser(username) {
 		if (!username || !username.trim()) {
 			throw { status: 400, message: "username is required" };
 		}
 
 		const trimmed = username.trim();
-		const existing = await UserRepository.findByUsername(db, trimmed);
+		const existing = await UserRepository.findByUsername(trimmed);
 		if (existing) {
 			throw { status: 400, message: "username already taken" };
 		}
 
-		return UserRepository.create(db, trimmed);
+		return UserRepository.create(trimmed);
 	},
 
-	async getAllUsers(db) {
-		const users = await UserRepository.findAll(db);
+	async getAllUsers() {
+		const users = await UserRepository.findAll();
 		if (users.length === 0) {
 			throw { status: 404, message: "No users found" };
 		}

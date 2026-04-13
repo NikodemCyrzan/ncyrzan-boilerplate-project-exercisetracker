@@ -2,8 +2,8 @@ import { UserRepository } from "../repositories/user.js";
 import { ExerciseRepository } from "../repositories/exercise.js";
 
 export const ExerciseService = {
-	async addExercise(db, userId, { description, duration, date }) {
-		const user = await UserRepository.findById(db, userId);
+	async addExercise(userId, { description, duration, date }) {
+		const user = await UserRepository.findById(userId);
 		if (!user) {
 			throw { status: 400, message: "User not found" };
 		}
@@ -32,11 +32,11 @@ export const ExerciseService = {
 			exerciseDate = trimmedDate;
 		}
 
-		return ExerciseRepository.create(db, user.id, description.trim(), dur, exerciseDate);
+		return ExerciseRepository.create(user.id, description.trim(), dur, exerciseDate);
 	},
 
-	async getLogs(db, userId, query) {
-		const user = await UserRepository.findById(db, userId);
+	async getLogs(userId, query) {
+		const user = await UserRepository.findById(userId);
 		if (!user) {
 			throw { status: 404, message: "User not found" };
 		}
@@ -45,7 +45,7 @@ export const ExerciseService = {
 		const parsedLimit =
 			limit && !isNaN(limit) && Number.isInteger(limit) && limit > 0 ? limit : undefined;
 
-		return ExerciseRepository.findByUserId(db, userId, {
+		return ExerciseRepository.findByUserId(userId, {
 			from: query.from,
 			to: query.to,
 			limit: parsedLimit,
